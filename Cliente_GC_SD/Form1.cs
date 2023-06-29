@@ -1,17 +1,10 @@
-﻿using Logic_GC_Sistemas_Distribuidos.ClockGlobal;
+﻿
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Cliente_GC_SD
 {
@@ -48,10 +41,7 @@ namespace Cliente_GC_SD
 
         private int ObtenerNumeroProcesosConocidos()
         {
-            // Implementa la lógica para obtener el número de procesos conocidos
-            // Puede ser a través de una consulta a la base de datos, contar clientes conectados, etc.
-            // En este ejemplo, se devuelve un valor constante de 3 para ilustrar el concepto
-
+            //por ahora sólo 4 procesos
             return 4;
         }
 
@@ -140,6 +130,7 @@ namespace Cliente_GC_SD
         }
     }
 
+    #region clase server
     public class Client
     {
         private TcpClient client;
@@ -189,7 +180,7 @@ namespace Cliente_GC_SD
                 }
                 catch (Exception ex)
                 {
-                    // Maneja cualquier excepción que ocurra durante la recepción de mensajes
+                    // ocurrió un error durante la recepción de mensajes
                     Console.WriteLine("Error al recibir mensajes: " + ex.Message);
                     break;
                 }
@@ -202,7 +193,9 @@ namespace Cliente_GC_SD
             MessageReceived?.Invoke(this, new MessageEventArgs(message, clock));
         }
     }
+    #endregion
 
+    #region clase control mensajes
     public class MessageEventArgs : EventArgs
     {
         public string Message { get; }
@@ -214,7 +207,9 @@ namespace Cliente_GC_SD
             Clock = clock;
         }
     }
+    #endregion
 
+    #region clase reloj vectorial
     public class LogicalVectorClock
     {
         private int[] vector;
@@ -231,15 +226,6 @@ namespace Cliente_GC_SD
         public void Tick(int index)
         {
             vector[index]++;
-
-            // Actualiza los valores de los demás índices
-            //for (int i = 0; i < vector.Length; i++)
-            //{
-            //    if (i != index)
-            //    {
-            //        vector[i] = Math.Max(vector[i], clock[index]);
-            //    }
-            //}
         }
 
         public void UpdateClock(LogicalVectorClock otherClock)
@@ -256,7 +242,9 @@ namespace Cliente_GC_SD
             return string.Join(",", vector);
         }
     }
+    #endregion
 
+    #region clase modelo mensaje clock
     public class Message
     {
         public string Content { get; }
@@ -277,8 +265,8 @@ namespace Cliente_GC_SD
         public static Message Parse(string data)
         {
             // Parsea una cadena de datos y devuelve un objeto Message con el contenido y el reloj vectorial lógico
-            // Puedes implementar tu propio formato de parseo aquí
             return new Message(data, null);
         }
     }
+    #endregion
 }

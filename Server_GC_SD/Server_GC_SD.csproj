@@ -78,11 +78,5 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Logic_GC_Sistemas_Distribuidos\Logic_GC_Sistemas_Distribuidos.csproj">
-      <Project>{3cfba412-6720-4964-937e-da3b8a344a58}</Project>
-      <Name>Logic_GC_Sistemas_Distribuidos</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

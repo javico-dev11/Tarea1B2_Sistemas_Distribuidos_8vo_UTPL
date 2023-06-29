@@ -1,11 +1,6 @@
 ﻿
-using Logic_GC_Sistemas_Distribuidos.ClockGlobal;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Net.Sockets;
 using System.Net;
 using System.Text;
@@ -41,7 +36,7 @@ namespace Server_GC_SD
 
             // Actualizar la interfaz de usuario para indicar que el servidor está iniciado
             btnStartServer.Enabled = false;
-            lblServerStatus.Text = "Iniciado";
+            lblServerStatus.Text = "Server Iniciado";
         }
 
         private void Server_ClientConnected(object sender, string clientInfo)
@@ -60,12 +55,15 @@ namespace Server_GC_SD
         {
             var auxMsg = e.Message.Remove(e.Message.Length -7);
 
+            #region modificar el vector global
             if (e.Clock.vector[0] > 0) globalClock.vector[0] = e.Clock.vector[0];
             if (e.Clock.vector[1] > 0) globalClock.vector[1] = e.Clock.vector[1];
             if (e.Clock.vector[2] > 0) globalClock.vector[2] = e.Clock.vector[2];
             if (e.Clock.vector[3] > 0) globalClock.vector[3] = e.Clock.vector[3];
+            #endregion
 
             string newMsg = $"{auxMsg} {globalClock.ToString()}";
+
             // Actualiza la interfaz de usuario para mostrar el mensaje recibido
             Invoke((MethodInvoker)(() => lstMessages.Items.Add(newMsg)));
 
@@ -84,6 +82,7 @@ namespace Server_GC_SD
         }
     }
 
+    #region clase server
     public class Server
     {
         private TcpListener listener;
@@ -175,7 +174,7 @@ namespace Server_GC_SD
                 }
                 catch (Exception ex)
                 {
-                    // Maneja cualquier excepción que ocurra durante la recepción de mensajes
+                    // Ocurrió un error durante la recepción de mensajes
                     Console.WriteLine("Error al recibir mensajes: " + ex.Message);
                     break;
                 }
@@ -188,7 +187,9 @@ namespace Server_GC_SD
             MessageReceived?.Invoke(this, new MessageEventArgs(message, clock));
         }
     }
+    #endregion
 
+    #region clase control mensajes
     public class MessageEventArgs : EventArgs
     {
         public string Message { get; }
@@ -200,7 +201,9 @@ namespace Server_GC_SD
             Clock = clock;
         }
     }
+    #endregion
 
+    #region clase reloj vectorial
     public class LogicalVectorClock
     {
         public int[] vector { get; set; }
@@ -217,15 +220,6 @@ namespace Server_GC_SD
         public void Tick(int index)
         {
             vector[index]++;
-
-            //// Actualiza los valores de los demás índices
-            //for (int i = 0; i < vector.Length; i++)
-            //{
-            //    if (i != index)
-            //    {
-            //        vector[i] = Math.Max(vector[i], vector[index]);
-            //    }
-            //}
         }
 
         public void UpdateClock(LogicalVectorClock otherClock)
@@ -240,7 +234,7 @@ namespace Server_GC_SD
         {
             // Verificar si la cadena es nula o vacía
             if (string.IsNullOrEmpty(clockStr))
-                throw new ArgumentException("Invalid clock string");
+                throw new ArgumentException("Cadena de reloj inválido!.");
 
             // Separar la cadena en partes
             string[] parts = clockStr.Split(',');
@@ -252,7 +246,7 @@ namespace Server_GC_SD
             for (int i = 0; i < parts.Length; i++)
             {
                 if (!int.TryParse(parts[i], out int value))
-                    throw new ArgumentException("Invalid clock string");
+                    throw new ArgumentException("Cadena de reloj inválido!.");
 
                 clock[i] = value;
             }
@@ -267,7 +261,9 @@ namespace Server_GC_SD
             return string.Join(",", vector);
         }
     }
+    #endregion
 
+    #region clase modelo mensaje clock
     public class Message
     {
         public string Content { get; }
@@ -288,8 +284,8 @@ namespace Server_GC_SD
         public static Message Parse(string data)
         {
             // Parsea una cadena de datos y devuelve un objeto Message con el contenido y el reloj vectorial lógico
-            // Puedes implementar tu propio formato de parseo aquí
             return new Message(data, null);
         }
     }
+    #endregion
 }
